@@ -81,50 +81,79 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Registro</title>
-    <link rel="stylesheet" href="estilos.css">
+    <title>Registro · Biblioteca</title>
+    <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
+    <link rel="stylesheet" href="assets/css/estilos.css">
 </head>
-<body>
-<main class="tarjeta">
-    <h1>Crear cuenta</h1>
+<body class="auth">
+<div class="auth-caja">
+    <aside class="auth-lado">
+        <div class="marca"><img src="assets/img/logo.svg" alt="" width="42" height="42"> Biblioteca</div>
+        <div class="texto-lado">
+            <h2>Crea tu cuenta</h2>
+            <p>Regístrate como alumno o profesor para consultar el catálogo de la biblioteca.</p>
+        </div>
+        <img class="ilustracion" src="assets/img/libros.svg" alt="" width="300" height="178">
+    </aside>
+    <main class="auth-form">
+        <h1>Crear cuenta</h1>
+        <p class="sub">Completa tus datos para registrarte.</p>
 
-    <?php foreach ($errores as $err): ?>
-        <p class="alerta error"><?= e($err) ?></p>
-    <?php endforeach; ?>
+        <?php foreach ($errores as $err): ?>
+            <p class="alerta error"><?= e($err) ?></p>
+        <?php endforeach; ?>
 
-    <div id="errores-cliente" class="alerta error" hidden></div>
+        <div id="errores-cliente" class="alerta error" hidden></div>
 
-    <form method="post" autocomplete="off" novalidate data-captcha-form="registro">
-        <input type="hidden" name="csrf" value="<?= e(csrf_token()) ?>">
+        <form method="post" autocomplete="off" novalidate data-captcha-form="registro">
+            <input type="hidden" name="csrf" value="<?= e(csrf_token()) ?>">
 
-        <label for="nombre">Nombre</label>
-        <input id="nombre" name="nombre" type="text" maxlength="100" required value="<?= e($nombre) ?>">
+            <label for="nombre">Nombre</label>
+            <div class="campo">
+                <svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
+                <input id="nombre" name="nombre" type="text" maxlength="100" required placeholder="Tu nombre completo" value="<?= e($nombre) ?>">
+            </div>
 
-        <label for="correo">Correo</label>
-        <input id="correo" name="correo" type="email" maxlength="254" required value="<?= e($correo) ?>">
+            <label for="correo">Correo</label>
+            <div class="campo">
+                <svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+                <input id="correo" name="correo" type="email" maxlength="254" required placeholder="nombre@correo.com" value="<?= e($correo) ?>">
+            </div>
 
-        <label for="rol">Rol</label>
-        <select id="rol" name="rol" required>
-            <option value="">Selecciona…</option>
-            <?php foreach ($config['roles_autoregistro'] as $r): ?>
-                <option value="<?= e($r) ?>" <?= $r === $rolElegido ? 'selected' : '' ?>><?= e(ucfirst($r)) ?></option>
-            <?php endforeach; ?>
-        </select>
+            <label for="rol">Rol</label>
+            <div class="campo">
+                <svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M14 10h4M14 14h4M6 17c.5-2 5.5-2 6 0"/></svg>
+                <select id="rol" name="rol" required>
+                    <option value="">Selecciona…</option>
+                    <?php foreach ($config['roles_autoregistro'] as $r): ?>
+                        <option value="<?= e($r) ?>" <?= $r === $rolElegido ? 'selected' : '' ?>><?= e(ucfirst($r)) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
 
-        <label for="password">Contraseña</label>
-        <input id="password" name="password" type="password" minlength="10" maxlength="72" required autocomplete="new-password">
-        <small>Mínimo 10 caracteres, con letras y números.</small>
+            <label for="password">Contraseña</label>
+            <div class="campo con-ojo">
+                <svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+                <input id="password" name="password" type="password" minlength="10" maxlength="72" required autocomplete="new-password">
+                <button type="button" class="ojo" data-objetivo="password" aria-label="Mostrar contraseña" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button>
+            </div>
+            <small>Mínimo 10 caracteres, con letras y números.</small>
 
-        <label for="password2">Confirmar contraseña</label>
-        <input id="password2" name="password2" type="password" minlength="10" maxlength="72" required autocomplete="new-password">
+            <label for="password2">Confirmar contraseña</label>
+            <div class="campo con-ojo">
+                <svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+                <input id="password2" name="password2" type="password" minlength="10" maxlength="72" required autocomplete="new-password">
+                <button type="button" class="ojo" data-objetivo="password2" aria-label="Mostrar contraseña" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button>
+            </div>
 
+            <button type="submit">Registrarme</button>
+        </form>
 
-        <button type="submit">Registrarme</button>
-    </form>
-
-    <p class="pie">¿Ya tienes cuenta? <a href="login.php">Inicia sesión</a></p>
-</main>
+        <p class="pie">¿Ya tienes cuenta? <a href="login.php">Inicia sesión</a></p>
+    </main>
+</div>
 <?php require __DIR__ . '/captcha_modal.php'; ?>
-<script src="captcha_modal.js"></script>
+<script src="assets/js/login.js"></script>
+<script src="assets/js/captcha_modal.js"></script>
 </body>
 </html>

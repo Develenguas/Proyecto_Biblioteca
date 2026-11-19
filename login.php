@@ -112,34 +112,53 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Iniciar sesión</title>
-    <link rel="stylesheet" href="estilos.css">
+    <title>Iniciar sesión · Biblioteca</title>
+    <link rel="icon" type="image/svg+xml" href="assets/img/logo.svg">
+    <link rel="stylesheet" href="assets/css/estilos.css">
 </head>
-<body>
-<main class="tarjeta">
-    <h1>Iniciar sesión</h1>
+<body class="auth">
+<div class="auth-caja">
+    <aside class="auth-lado">
+        <div class="marca"><img src="assets/img/logo.svg" alt="" width="42" height="42"> Biblioteca</div>
+        <div class="texto-lado">
+            <h2>Bienvenido de nuevo</h2>
+            <p>Consulta el catálogo, administra tus libros y accede a todos los servicios de la biblioteca.</p>
+        </div>
+        <img class="ilustracion" src="assets/img/libros.svg" alt="" width="300" height="178">
+    </aside>
+    <main class="auth-form">
+        <h1>Iniciar sesión</h1>
+        <p class="sub">Ingresa tus credenciales para continuar.</p>
 
-    <?php if ($mensaje): ?><p class="alerta ok"><?= e($mensaje) ?></p><?php endif; ?>
-    <?php if ($error): ?><p class="alerta error"><?= e($error) ?></p><?php endif; ?>
+        <?php if ($mensaje): ?><p class="alerta ok"><?= e($mensaje) ?></p><?php endif; ?>
+        <?php if ($error): ?><p class="alerta error"><?= e($error) ?></p><?php endif; ?>
 
-    <div id="errores-cliente" class="alerta error" hidden></div>
+        <div id="errores-cliente" class="alerta error" hidden></div>
 
-    <form method="post" novalidate data-captcha-form="login">
-        <input type="hidden" name="csrf" value="<?= e(csrf_token()) ?>">
+        <form method="post" novalidate data-captcha-form="login">
+            <input type="hidden" name="csrf" value="<?= e(csrf_token()) ?>">
 
-        <label for="correo">Correo</label>
-        <input id="correo" name="correo" type="email" maxlength="254" required autofocus value="<?= e($correo) ?>">
+            <label for="correo">Correo</label>
+            <div class="campo">
+                <svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+                <input id="correo" name="correo" type="email" maxlength="254" required autofocus autocomplete="username" placeholder="nombre@correo.com" value="<?= e($correo) ?>">
+            </div>
 
-        <label for="password">Contraseña</label>
-        <input id="password" name="password" type="password" maxlength="72" required autocomplete="current-password">
+            <label for="password">Contraseña</label>
+            <div class="campo con-ojo">
+                <svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+                <input id="password" name="password" type="password" maxlength="72" required autocomplete="current-password" placeholder="Tu contraseña">
+                <button type="button" class="ojo" data-objetivo="password" aria-label="Mostrar contraseña" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button>
+            </div>
 
+            <button type="submit">Entrar</button>
+        </form>
 
-        <button type="submit">Entrar</button>
-    </form>
-
-    <p class="pie">¿No tienes cuenta? <a href="registro.php">Regístrate</a></p>
-</main>
+        <p class="pie">¿No tienes cuenta? <a href="registro.php">Regístrate</a></p>
+    </main>
+</div>
 <?php require __DIR__ . '/captcha_modal.php'; ?>
-<script src="captcha_modal.js"></script>
+<script src="assets/js/login.js"></script>
+<script src="assets/js/captcha_modal.js"></script>
 </body>
 </html>
