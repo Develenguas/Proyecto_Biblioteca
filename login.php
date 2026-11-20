@@ -8,8 +8,7 @@ if (!empty($_SESSION['id_usuario'])) {
 }
 
 $error = null;
-$correo = '';
-$mensaje = flash();
+$correo = '';$mensaje = flash();
 
 const MSG_FALLO = 'Credenciales incorrectas o cuenta bloqueada temporalmente.';
 
@@ -41,18 +40,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                  WHERE u.correo = :c'
             );
 
-            $st->execute([':c' => $correo]);
-            $u = $st->fetch();
+            $st->execute([':c' =>$correo]);
+            $u =$st->fetch();
 
             // Verificación de hash incluso si el usuario no existe.
-            $hashAComparar = $u['password_hash']
+            $hashAComparar =$u['password_hash']
                 ?? password_hash(
                     'relleno-tiempo-constante',
                     PASSWORD_BCRYPT,
                     ['cost' => 12]
                 );
 
-            $passOk = password_verify($pass, $hashAComparar);
+            $passOk = password_verify($pass,$hashAComparar);
 
             if ($u && (int)$u['bloqueado'] === 1) {
 
@@ -100,10 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // Renovar sesión.
                 session_regenerate_id(true);
 
-                $_SESSION['id_usuario'] = (int)$u['id_usuario'];
-                $_SESSION['nombre'] = $u['nombre'];
-                $_SESSION['rol'] = $u['nombre_rol'];
-                $_SESSION['ultima_actividad'] = time();
+                $_SESSION['id_usuario'] = (int)$u['id_usuario'];$_SESSION['nombre'] = $u['nombre'];$_SESSION['rol'] = $u['nombre_rol'];$_SESSION['ultima_actividad'] = time();
 
                 unset($_SESSION['csrf']);
 
@@ -129,9 +125,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             ? 0
                             : (int)$u['intentos_fallidos'];
 
-                        $nuevos = $previos + 1;
+                        $nuevos =$previos + 1;
 
-                        if ($nuevos >= $maxIntentos) {
+                        if ($nuevos >=$maxIntentos) {
 
                             db()->prepare(
                                 "UPDATE usuarios
@@ -183,8 +179,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         } catch (PDOException $ex) {
 
-            error_log('Error en login: ' . $ex->getMessage());
-            $error = 'No se pudo iniciar sesión. Inténtalo más tarde.';
+            error_log('Error en login: ' . $ex->getMessage());$error = 'No se pudo iniciar sesión. Inténtalo más tarde.';
         }
     }
 }
@@ -202,6 +197,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 
 <body class="auth">
+
+<!-- ANIMACIÓN DE CARGA TEMÁTICA DE BIBLIOTECA -->
+<div id="biblio-preloader" class="biblio-preloader" role="status" aria-live="polite" aria-label="Cargando biblioteca">
+    <div class="biblio-preloader-contenido">
+        <div class="libro-animado" aria-hidden="true">
+            <span class="libro-tapa"></span>
+            <span class="libro-pagina pagina-1"></span>
+            <span class="libro-pagina pagina-2"></span>
+            <span class="libro-pagina pagina-3"></span>
+        </div>
+        <p class="biblio-preloader-titulo">BIBLIOTECA</p>
+        <p class="biblio-preloader-texto">Preparando el acceso al catálogo...</p>
+    </div>
+</div>
 
 <div class="auth-caja">
 
@@ -394,6 +403,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <script src="assets/js/login.js"></script>
 <script src="assets/js/captcha_modal.js"></script>
+<script src="assets/js/preloader.js"></script>
 
 </body>
 </html>

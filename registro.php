@@ -32,10 +32,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errores[] = 'El correo no es válido. Debe tener @ y un dominio con extensión (ej. nombre@correo.com).';
         }
         // bcrypt solo usa los primeros 72 bytes, por eso ese es el máximo.
-        if (strlen($pass) < 10 || strlen($pass) > 72) {
-            $errores[] = 'La contraseña debe tener entre 10 y 72 caracteres.';
-        } elseif (!preg_match('/[A-Za-z]/', $pass) || !preg_match('/\d/', $pass)) {
-            $errores[] = 'La contraseña debe incluir letras y números.';
+        if (strlen($pass) < 8 || strlen($pass) > 72) {
+            $errores[] = 'La contraseña debe tener entre 8 y 72 caracteres.';
+        } elseif (!preg_match('/[A-Z]/', $pass)) {
+            $errores[] = 'La contraseña debe incluir al menos 1 letra mayúscula.';
+        } elseif (!preg_match('/\d/', $pass)) {
+            $errores[] = 'La contraseña debe incluir al menos 1 número.';
+        } elseif (!preg_match('/[^A-Za-z0-9]/', $pass)) {
+            $errores[] = 'La contraseña debe incluir al menos 1 símbolo.';
         }
         if ($pass !== $pass2) {
             $errores[] = 'Las contraseñas no coinciden.';
@@ -134,17 +138,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <label for="password">Contraseña</label>
             <div class="campo con-ojo">
                 <svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
-                <input id="password" name="password" type="password" minlength="10" maxlength="72" required autocomplete="new-password">
+                <input id="password" name="password" type="password" minlength="8" maxlength="72" required autocomplete="new-password">
                 <button type="button" class="ojo" data-objetivo="password" aria-label="Mostrar contraseña" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button>
             </div>
-            <small>Mínimo 10 caracteres, con letras y números.</small>
+
+            <ul id="requisitos-password" class="requisitos-pass" aria-label="Requisitos de contraseña">
+                <li id="req-longitud" class="req-item">
+                    <span class="req-indicador" aria-hidden="true">○</span>
+                    <span>Al menos 8 caracteres</span>
+                </li>
+                <li id="req-mayuscula" class="req-item">
+                    <span class="req-indicador" aria-hidden="true">○</span>
+                    <span>Al menos 1 letra mayúscula</span>
+                </li>
+                <li id="req-numero" class="req-item">
+                    <span class="req-indicador" aria-hidden="true">○</span>
+                    <span>Al menos 1 número</span>
+                </li>
+                <li id="req-simbolo" class="req-item">
+                    <span class="req-indicador" aria-hidden="true">○</span>
+                    <span>Al menos 1 símbolo</span>
+                </li>
+            </ul>
 
             <label for="password2">Confirmar contraseña</label>
             <div class="campo con-ojo">
                 <svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
-                <input id="password2" name="password2" type="password" minlength="10" maxlength="72" required autocomplete="new-password">
+                <input id="password2" name="password2" type="password" minlength="8" maxlength="72" required autocomplete="new-password">
                 <button type="button" class="ojo" data-objetivo="password2" aria-label="Mostrar contraseña" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button>
             </div>
+            <p id="coincidencia-password" class="estado-coincidencia" aria-live="polite" hidden></p>
 
             <button type="submit">Registrarme</button>
         </form>
@@ -155,5 +178,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <?php require __DIR__ . '/captcha_modal.php'; ?>
 <script src="assets/js/login.js"></script>
 <script src="assets/js/captcha_modal.js"></script>
+<script src="assets/js/registro_password.js"></script>
 </body>
 </html>
