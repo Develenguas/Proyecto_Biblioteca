@@ -39,10 +39,14 @@
             if (valor('rol') === '') {
                 errores.push('Selecciona un rol.');
             }
-            if (pass.length < 10 || pass.length > 72) {
-                errores.push('La contraseña debe tener entre 10 y 72 caracteres.');
-            } else if (!/[A-Za-z]/.test(pass) || !/\d/.test(pass)) {
-                errores.push('La contraseña debe incluir letras y números.');
+            if (pass.length < 8 || pass.length > 72) {
+                errores.push('La contraseña debe tener entre 8 y 72 caracteres.');
+            } else if (!/[A-Z]/.test(pass)) {
+                errores.push('La contraseña debe incluir al menos 1 letra mayúscula.');
+            } else if (!/\d/.test(pass)) {
+                errores.push('La contraseña debe incluir al menos 1 número.');
+            } else if (!/[^A-Za-z0-9]/.test(pass)) {
+                errores.push('La contraseña debe incluir al menos 1 símbolo.');
             }
             if (pass !== valor('password2')) {
                 errores.push('Las contraseñas no coinciden.');
@@ -51,7 +55,8 @@
             if (!REGEX_CORREO.test(correo)) {
                 errores.push('Escribe un correo válido (con @ y extensión, ej. nombre@correo.com).');
             }
-            if (valor('password') === '') {
+            // Solo exigir contraseña si el formulario actual tiene campo password
+            if (form.elements['password'] && valor('password') === '') {
                 errores.push('Escribe tu contraseña.');
             }
         }

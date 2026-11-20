@@ -8,7 +8,8 @@ if (!empty($_SESSION['id_usuario'])) {
 }
 
 $error = null;
-$correo = '';$mensaje = flash();
+$correo = '';
+$mensaje = flash();
 
 const MSG_FALLO = 'Credenciales incorrectas o cuenta bloqueada temporalmente.';
 
@@ -388,6 +389,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <p class="pie">
             ¿No tienes cuenta?
             <a href="registro.php">Crear una cuenta</a>
+        </p>
+        <p class="pie">
+            <a href="recuperar.php">¿Olvidaste tu contraseña?</a>
         </p>
 
         <div class="form-pie">

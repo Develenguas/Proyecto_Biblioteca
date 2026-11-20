@@ -1,16 +1,67 @@
 (function () {
-    'use strict';
-    // Botón "ojo": muestra u oculta la contraseña.
-    document.querySelectorAll('button.ojo').forEach(function (btn) {
+    const forms = document.querySelectorAll('form');
+    const erroresBox = document.getElementById('errores-cliente');
+
+    function mostrarErrores(lista) {
+        if (!erroresBox) {
+            return;
+        }
+        if (!lista.length) {
+            erroresBox.hidden = true;
+            erroresBox.textContent = '';
+            return;
+        }
+        erroresBox.hidden = false;
+        erroresBox.innerHTML = lista.map(function (msg) {
+            return '<div>' + msg.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</div>';
+        }).join('');
+    }
+
+    forms.forEach(function (form) {
+        if (form.dataset.captchaForm) {
+            return;
+        }
+
+        form.addEventListener('submit', function (ev) {
+            const errores = [];
+            const correoInput = form.querySelector('#correo');
+            const passInput = form.querySelector('#password');
+
+            if (correoInput && !correoInput.disabled) {
+                const valCorreo = correoInput.value.trim();
+                if (!valCorreo) {
+                    errores.push('Ingresa tu correo electrónico.');
+                }
+            }
+
+            // Solo validar contraseña si el formulario tiene el campo #password presente y visible
+            if (passInput && !passInput.disabled && passInput.offsetParent !== null) {
+                if (!passInput.value) {
+                    errores.push('Escribe tu contraseña.');
+                }
+            }
+
+            if (errores.length > 0) {
+                ev.preventDefault();
+                mostrarErrores(errores);
+            } else {
+                mostrarErrores([]);
+            }
+        });
+    });
+
+    // Botones mostrar / ocultar contraseña (data-objetivo)
+    document.querySelectorAll('button.ojo[data-objetivo]').forEach(function (btn) {
         btn.addEventListener('click', function () {
-            var campo = document.getElementById(btn.getAttribute('data-objetivo'));
-            if (!campo) { return; }
-            var mostrar = campo.type === 'password';
-            campo.type = mostrar ? 'text' : 'password';
-            btn.classList.toggle('activo', mostrar);
-            btn.setAttribute('aria-pressed', mostrar ? 'true' : 'false');
-            btn.setAttribute('aria-label', mostrar ? 'Ocultar contraseña' : 'Mostrar contraseña');
-            campo.focus();
+            const idInput = btn.getAttribute('data-objetivo');
+            const input = idInput ? document.getElementById(idInput) : null;
+            if (!input) {
+                return;
+            }
+            const esPassword = input.type === 'password';
+            input.type = esPassword ? 'text' : 'password';
+            btn.classList.toggle('activo', esPassword);
+            btn.setAttribute('aria-pressed', esPassword ? 'true' : 'false');
         });
     });
 })();

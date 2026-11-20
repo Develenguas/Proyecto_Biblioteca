@@ -179,3 +179,38 @@ function cerrar_sesion(): void
     }
     session_destroy();
 }
+
+// ---------- Códigos de verificación por correo ----------
+function generar_codigo_verificacion(): string
+{
+    return (string)random_int(100000, 999999);
+}
+
+function enviar_codigo_correo(string $destinatario, string $asunto, string $codigo, string $proposito): bool
+{
+    global $config;
+    $cfgCorreo = $config['correo'] ?? [];
+    $remitente = (string)($cfgCorreo['remitente'] ?? 'no-reply@biblioteca.local');
+    $nombreRem = (string)($cfgCorreo['nombre_remitente'] ?? 'Biblioteca');
+    $minutos   = (int)($cfgCorreo['minutos_expiracion'] ?? 10);
+
+    $cuerpo = "Hola,\n\n"
+        . "Tu código de verificación para {$proposito} en el Sistema de Gestión Bibliotecaria es:\n\n"
+        . "    {$codigo}\n\n"
+        . "Este código vence en {$minutos} minutos.\n"
+        . "Si tú no realizaste esta solicitud, ignora este mensaje.\n";
+
+    $headers = [
+        'MIME-Version: 1.0',
+        'Content-Type: text/plain; charset=UTF-8',
+        'From: ' . mb_encode_mimeheader($nombreRem, 'UTF-8') . " <{$remitente}>",
+        'Reply-To: ' . $remitente,
+        'X-Mailer: PHP/' . PHP_VERSION,
+    ];
+
+    $enviado = @mail($destinatario, mb_encode_mimeheader($asunto, 'UTF-8'), $cuerpo, implode("\r\n", $headers));
+    if (!$enviado) {
+        error_log("No se pudo enviar correo de verificación ({$proposito}) a {$destinatario}");
+    }
+    return $enviado;
+}
