@@ -14,18 +14,21 @@ return [
     'sesion_minutos'     => 30,   // inactividad máxima de la sesión
     'roles_autoregistro' => ['alumno', 'profesor'],
 
-    // Configuración para códigos de verificación por correo
-    'correo' => [
-        'remitente'           => 'tu_correo_smtp@dominio.com',
-        'nombre_remitente'    => 'Biblioteca',
-        'minutos_expiracion'  => 10,
-        'max_intentos_codigo' => 5,
-        'smtp' => [
-            'host'     => 'smtp.dominio.com',
-            'port'     => 587, // 587 para TLS (STARTTLS) o 465 para SSL
-            'user'     => 'tu_correo_smtp@dominio.com',
-            'pass'     => 'TU_CONTRASEÑA_O_CLAVE_APLICACION',
-            'security' => 'tls', // 'tls' o 'ssl'
-        ],
+   
+// Configuración para códigos de verificación por correo
+'correo' => [
+    'remitente'           => 'biblioteca.proyecto4@gmail.com',
+    'nombre_remitente'    => 'Sistema de Biblioteca',
+    'minutos_expiracion'  => 10,
+    'max_intentos_codigo' => 5,
+
+    'smtp' => [
+        'host'     => 'smtp.gmail.com',
+        'port'     => 587,
+        'user'     => 'biblioteca.proyecto4@gmail.com',
+        'pass'     => 'mlttvkejhtavfxgi',
+        'security' => 'tls',
     ],
+],
+
 ];

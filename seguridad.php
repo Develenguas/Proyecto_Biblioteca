@@ -1,6 +1,5 @@
 <?php
 declare(strict_types=1);
-
 $config = require __DIR__ . '/config.php';
 
 // ---------- Sesión segura ----------
@@ -166,7 +165,7 @@ function captcha_aprobado(): bool
 function correo_valido(string $correo): bool
 {
     return strlen($correo) <= 254
-        && (bool)preg_match('/^[A-Za-z0-9._%+\-]+@[A-Za-z0-9\-]+(\.[A-Za-z0-9\-]+)*\.[A-Za-z]{2,}$/', $correo)
+        && (bool)preg_match('/^[A-Za-z0-9._%+\-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}$/', $correo)
         && filter_var($correo, FILTER_VALIDATE_EMAIL) !== false;
 }
 
@@ -190,7 +189,7 @@ function enviar_codigo_correo(string $destinatario, string $asunto, string $codi
 {
     global $config;
     $cfgCorreo = $config['correo'] ?? [];
-    $remitente = (string)($cfgCorreo['remitente'] ?? 'no-reply@192.168.20.132');
+    $remitente = (string)($cfgCorreo['remitente'] ?? 'biblioteca.proyecto4@gmail.com');
     $nombreRem = (string)($cfgCorreo['nombre_remitente'] ?? 'Biblioteca');
     $minutos   = (int)($cfgCorreo['minutos_expiracion'] ?? 10);
     $smtp      = $cfgCorreo['smtp'] ?? [];
@@ -211,8 +210,7 @@ function enviar_codigo_correo(string $destinatario, string $asunto, string $codi
         $pass = (string)($smtp['pass'] ?? '');
         $sec  = strtolower((string)($smtp['security'] ?? 'tls'));
 
-        $transport = ($sec === 'ssl') ? "ssl://{$host}:{$port}" : "tcp://{$host}:{$port}";
-        $ctx = stream_context_create([
+    $transport = ($sec === 'ssl') ? "ssl://{$host}:{$port}" : "tcp://{$host}:{$port}";        $ctx = stream_context_create([
             'ssl' => [
                 'verify_peer'       => true,
                 'verify_peer_name'  => true,
