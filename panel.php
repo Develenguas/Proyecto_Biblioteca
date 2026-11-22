@@ -23,5 +23,6 @@ requiere_sesion();
         <button type="submit">Cerrar sesión</button>
     </form>
 </main>
+<script src="assets/js/cierre_sesion.js"></script>
 </body>
 </html>
