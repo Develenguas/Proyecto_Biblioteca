@@ -65,14 +65,3 @@
         });
     });
 })();
-(function () {
-    var modo = document.body.dataset.tab;
-
-    if (modo === 'login') {
-        sessionStorage.setItem('tab_activa', '1');
-    } else if (modo === 'protegida') {
-        if (!sessionStorage.getItem('tab_activa')) {
-            window.location.replace('logout.php');
-        }
-    }
-})();
