@@ -190,25 +190,155 @@ function enviar_codigo_correo(string $destinatario, string $asunto, string $codi
 {
     global $config;
     $cfgCorreo = $config['correo'] ?? [];
-    $remitente = (string)($cfgCorreo['remitente'] ?? 'no-reply@biblioteca.local');
+    $remitente = (string)($cfgCorreo['remitente'] ?? 'no-reply@192.168.20.132');
     $nombreRem = (string)($cfgCorreo['nombre_remitente'] ?? 'Biblioteca');
     $minutos   = (int)($cfgCorreo['minutos_expiracion'] ?? 10);
+    $smtp      = $cfgCorreo['smtp'] ?? [];
 
-    $cuerpo = "Hola,\n\n"
-        . "Tu código de verificación para {$proposito} en el Sistema de Gestión Bibliotecaria es:\n\n"
-        . "    {$codigo}\n\n"
-        . "Este código vence en {$minutos} minutos.\n"
-        . "Si tú no realizaste esta solicitud, ignora este mensaje.\n";
+    $cuerpo = "Hola,\r\n\r\n"
+        . "Tu código de verificación para {$proposito} en el Sistema de Gestión Bibliotecaria es:\r\n\r\n"
+        . "    {$codigo}\r\n\r\n"
+        . "Este código vence en {$minutos} minutos.\r\n"
+        . "Si tú no realizaste esta solicitud, ignora este mensaje.\r\n";
+
+    $asuntoCodificado = mb_encode_mimeheader($asunto, 'UTF-8');
+    $remitenteCodificado = mb_encode_mimeheader($nombreRem, 'UTF-8') . " <{$remitente}>";
+
+    if (!empty($smtp['host'])) {
+        $host = (string)$smtp['host'];
+        $port = (int)($smtp['port'] ?? 587);
+        $user = (string)($smtp['user'] ?? '');
+        $pass = (string)($smtp['pass'] ?? '');
+        $sec  = strtolower((string)($smtp['security'] ?? 'tls'));
+
+        $transport = ($sec === 'ssl') ? "ssl://{$host}:{$port}" : "tcp://{$host}:{$port}";
+        $ctx = stream_context_create([
+            'ssl' => [
+                'verify_peer'       => true,
+                'verify_peer_name'  => true,
+                'allow_self_signed' => false,
+            ],
+        ]);
+
+        $errno = 0;
+        $errstr = '';
+        $fp = @stream_socket_client($transport, $errno, $errstr, 15, STREAM_CLIENT_CONNECT, $ctx);
+        if (!$fp) {
+            error_log("SMTP conexión fallida a {$transport}: [{$errno}] {$errstr}");
+            return false;
+        }
+
+        stream_set_timeout($fp, 15);
+
+        $leer = static function () use ($fp): string {
+            $resp = '';
+            while (($linea = fgets($fp, 515)) !== false) {
+                $resp .= $linea;
+                if (strlen($linea) >= 4 && $linea[3] === ' ') {
+                    break;
+                }
+            }
+            return $resp;
+        };
+
+        $comando = static function (string $cmd, array $codigosEsperados) use ($fp, $leer): bool {
+            fwrite($fp, $cmd . "\r\n");
+            $resp = $leer();
+            $codigoResp = substr($resp, 0, 3);
+            if (!in_array($codigoResp, $codigosEsperados, true)) {
+                error_log("SMTP error en [{$cmd}]: {$resp}");
+                return false;
+            }
+            return true;
+        };
+
+        $saludo = $leer();
+        if (substr($saludo, 0, 3) !== '220') {
+            error_log("SMTP saludo inválido: {$saludo}");
+            fclose($fp);
+            return false;
+        }
+
+        $ehloHost = 'localhost';
+        if (!$comando("EHLO {$ehloHost}", ['250'])) {
+            fclose($fp);
+            return false;
+        }
+
+        if ($sec === 'tls') {
+            if (!$comando('STARTTLS', ['220'])) {
+                fclose($fp);
+                return false;
+            }
+            if (!@stream_socket_enable_crypto($fp, true, STREAM_CRYPTO_METHOD_TLS_CLIENT)) {
+                error_log('SMTP error al activar TLS');
+                fclose($fp);
+                return false;
+            }
+            if (!$comando("EHLO {$ehloHost}", ['250'])) {
+                fclose($fp);
+                return false;
+            }
+        }
+
+        if ($user !== '' || $pass !== '') {
+            if (!$comando('AUTH LOGIN', ['334'])) {
+                fclose($fp);
+                return false;
+            }
+            if (!$comando(base64_encode($user), ['334'])) {
+                fclose($fp);
+                return false;
+            }
+            if (!$comando(base64_encode($pass), ['235'])) {
+                error_log('SMTP autenticación fallida: revisa usuario y contraseña/clave de aplicación');
+                fclose($fp);
+                return false;
+            }
+        }
+
+        if (!$comando("MAIL FROM:<{$remitente}>", ['250']) || !$comando("RCPT TO:<{$destinatario}>", ['250', '251'])) {
+            fclose($fp);
+            return false;
+        }
+
+        if (!$comando('DATA', ['354'])) {
+            fclose($fp);
+            return false;
+        }
+
+        $cuerpoEscapado = preg_replace('/^\./m', '..', $cuerpo) ?? $cuerpo;
+        $mensajeSMTP = "Date: " . date('r') . "\r\n"
+            . "From: {$remitenteCodificado}\r\n"
+            . "To: <{$destinatario}>\r\n"
+            . "Subject: {$asuntoCodificado}\r\n"
+            . "MIME-Version: 1.0\r\n"
+            . "Content-Type: text/plain; charset=UTF-8\r\n"
+            . "\r\n"
+            . $cuerpoEscapado . "\r\n.";
+
+        fwrite($fp, $mensajeSMTP . "\r\n");
+        $respData = $leer();
+        $comando('QUIT', ['221', '250']);
+        fclose($fp);
+
+        if (substr($respData, 0, 3) !== '250') {
+            error_log("SMTP error al finalizar DATA: {$respData}");
+            return false;
+        }
+
+        return true;
+    }
 
     $headers = [
         'MIME-Version: 1.0',
         'Content-Type: text/plain; charset=UTF-8',
-        'From: ' . mb_encode_mimeheader($nombreRem, 'UTF-8') . " <{$remitente}>",
+        'From: ' . $remitenteCodificado,
         'Reply-To: ' . $remitente,
         'X-Mailer: PHP/' . PHP_VERSION,
     ];
 
-    $enviado = @mail($destinatario, mb_encode_mimeheader($asunto, 'UTF-8'), $cuerpo, implode("\r\n", $headers));
+    $enviado = mail($destinatario, $asuntoCodificado, $cuerpo, implode("\r\n", $headers));
     if (!$enviado) {
         error_log("No se pudo enviar correo de verificación ({$proposito}) a {$destinatario}");
     }
