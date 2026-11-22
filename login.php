@@ -197,7 +197,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="assets/css/estilos.css">
 </head>
 
-<body class="auth">
+<body class="auth" data-tab="login">
 
 <!-- ANIMACIÓN DE CARGA TEMÁTICA DE BIBLIOTECA -->
 <div id="biblio-preloader" class="biblio-preloader" role="status" aria-live="polite" aria-label="Cargando biblioteca">
