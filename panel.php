@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 require __DIR__ . '/seguridad.php';
-cerrar_sesion();
+cerrar_sesion(); 
 redirigir('login.php');
 ?>
 <!DOCTYPE html>
@@ -12,7 +12,7 @@ redirigir('login.php');
     <title>Panel</title>
     <link rel="stylesheet" href="assets/css/estilos.css">
 </head>
-<body data-tab="protegida">
+<body >
 <main class="tarjeta">
     <h1>Login cargado</h1>
     <p class="alerta ok">Sesión iniciada correctamente.</p>
@@ -24,6 +24,5 @@ redirigir('login.php');
         <button type="submit">Cerrar sesión</button>
     </form>
 </main>
-<script src="assets/js/login.js"></script>
 </body>
 </html>
