@@ -1,0 +1,15 @@
+# Abrir login.php como página principal
+DirectoryIndex login.php
+
+# Desactivar el listado de directorios (evita el "Index of")
+Options -Indexes
+
+# Bloquear acceso directo a archivos sensibles
+<FilesMatch "^(config|seguridad)\.php$">
+    Require all denied
+</FilesMatch>
+
+# Bloquear archivos ocultos y de respaldo
+<FilesMatch "(^\.|\.(sql|bak|log|ini|md)$)">
+    Require all denied
+</FilesMatch>
